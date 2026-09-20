@@ -23,38 +23,38 @@ async function execute(interaction) {
 
   if (sub === 'log-channel') {
     const channel = interaction.options.getChannel('canale');
-    updateGuildSettings(guildId, { log_channel_id: channel.id });
+    await updateGuildSettings(guildId, { log_channel_id: channel.id });
     return interaction.reply({ content: `✅ Canale di log impostato su ${channel}.`, ephemeral: true });
   }
 
   if (sub === 'verification-channel') {
     const channel = interaction.options.getChannel('canale');
-    updateGuildSettings(guildId, { verification_channel_id: channel.id });
+    await updateGuildSettings(guildId, { verification_channel_id: channel.id });
     return interaction.reply({ content: `✅ Canale di verifica impostato su ${channel}.`, ephemeral: true });
   }
 
   if (sub === 'verified-role') {
     const role = interaction.options.getRole('ruolo');
-    updateGuildSettings(guildId, { verified_role_id: role.id, verification_enabled: true });
+    await updateGuildSettings(guildId, { verified_role_id: role.id, verification_enabled: true });
     return interaction.reply({ content: `✅ Ruolo verificato impostato su ${role}. Verifica attivata.`, ephemeral: true });
   }
 
   if (sub === 'quarantine-role') {
     const role = interaction.options.getRole('ruolo');
-    updateGuildSettings(guildId, { quarantine_role_id: role.id });
+    await updateGuildSettings(guildId, { quarantine_role_id: role.id });
     return interaction.reply({ content: `✅ Ruolo di quarantena impostato su ${role}.`, ephemeral: true });
   }
 
   if (sub === 'protected-role') {
     const role = interaction.options.getRole('ruolo');
-    const settings = getGuildSettings(guildId);
+    const settings = await getGuildSettings(guildId);
     const updated = Array.from(new Set([...settings.protected_role_ids, role.id]));
-    updateGuildSettings(guildId, { protected_role_ids: updated });
+    await updateGuildSettings(guildId, { protected_role_ids: updated });
     return interaction.reply({ content: `✅ ${role} è ora esente dall'auto-moderazione.`, ephemeral: true });
   }
 
   if (sub === 'status') {
-    const s = getGuildSettings(guildId);
+    const s = await getGuildSettings(guildId);
     const lines = [
       `**Piano:** ${s.plan}`,
       `**Log:** ${s.log_channel_id ? `<#${s.log_channel_id}>` : 'non impostato'}`,

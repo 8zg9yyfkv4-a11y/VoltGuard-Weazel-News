@@ -36,22 +36,20 @@ for (const file of fs.readdirSync(commandsDir).filter(f => f.endsWith('.js'))) {
   }
 }
  
-client.once('ready', () => {
+client.once('ready', async () => {
   console.log(`✅ Voltguard online come ${client.user.tag} — al servizio di ${client.guilds.cache.size} server.`);
   client.user.setActivity('il tuo server | /voltguard-setup status');
- 
+
   // Copre il caso in cui il bot sia stato invitato mentre era offline:
   // in quel caso non scatta guildCreate, quindi verifichiamo qui ogni guild già presente
-  client.guilds.cache.forEach(guild => {
-    getGuildSettings(guild.id);
-  });
- 
+  await Promise.all(client.guilds.cache.map(guild => getGuildSettings(guild.id)));
+
   scheduleAutoBackups(client);
 });
  
 // Assicura che ogni server in cui il bot è presente abbia una riga di config
-client.on('guildCreate', guild => {
-  getGuildSettings(guild.id);
+client.on('guildCreate', async guild => {
+  await getGuildSettings(guild.id);
   console.log(`➕ Voltguard aggiunto al server: ${guild.name} (${guild.id})`);
 });
  

@@ -8,12 +8,12 @@ const data = new SlashCommandBuilder()
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
 async function execute(interaction) {
-  const settings = getGuildSettings(interaction.guild.id);
+  const settings = await getGuildSettings(interaction.guild.id);
   if (settings.plan !== 'enterprise') {
     return interaction.reply({ content: '⚠️ L\'accesso API è disponibile solo sul piano Enterprise.', ephemeral: true });
   }
   const key = 'vg_' + crypto.randomBytes(24).toString('hex');
-  updateGuildSettings(interaction.guild.id, { api_key: key });
+  await updateGuildSettings(interaction.guild.id, { api_key: key });
   return interaction.reply({
     content: `🔑 Nuova API key generata (mostrata una sola volta, conservala):\n\`\`\`${key}\`\`\`\nUsala nell'header \`X-API-Key\` verso il pannello admin per gestire regole personalizzate e whitelist.`,
     ephemeral: true,

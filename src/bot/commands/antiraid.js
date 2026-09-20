@@ -26,26 +26,26 @@ async function execute(interaction) {
 
   if (sub === 'toggle') {
     const attivo = interaction.options.getBoolean('attivo');
-    updateGuildSettings(guildId, { antiraid_enabled: attivo });
+    await updateGuildSettings(guildId, { antiraid_enabled: attivo });
     return interaction.reply({ content: `✅ Anti-raid ${attivo ? 'attivato' : 'disattivato'}.`, ephemeral: true });
   }
 
   if (sub === 'soglia') {
     const join = interaction.options.getInteger('join');
     const secondi = interaction.options.getInteger('secondi');
-    updateGuildSettings(guildId, { antiraid_join_threshold: join, antiraid_join_window_sec: secondi });
+    await updateGuildSettings(guildId, { antiraid_join_threshold: join, antiraid_join_window_sec: secondi });
     return interaction.reply({ content: `✅ Soglia impostata: ${join} join in ${secondi}s.`, ephemeral: true });
   }
 
   if (sub === 'eta-minima') {
     const ore = interaction.options.getInteger('ore');
-    updateGuildSettings(guildId, { antiraid_min_account_age_hours: ore });
+    await updateGuildSettings(guildId, { antiraid_min_account_age_hours: ore });
     return interaction.reply({ content: `✅ Età minima account impostata a ${ore}h.`, ephemeral: true });
   }
 
   if (sub === 'azione') {
     const tipo = interaction.options.getString('tipo');
-    updateGuildSettings(guildId, { antiraid_action: tipo });
+    await updateGuildSettings(guildId, { antiraid_action: tipo });
     return interaction.reply({ content: `✅ Azione anti-raid impostata su **${tipo}**.`, ephemeral: true });
   }
 }

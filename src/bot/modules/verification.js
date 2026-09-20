@@ -23,7 +23,7 @@ async function postVerificationPanel(guild, channel) {
 }
 
 async function handleVerifyButton(interaction) {
-  const settings = getGuildSettings(interaction.guild.id);
+  const settings = await getGuildSettings(interaction.guild.id);
   if (!settings.verification_enabled || !settings.verified_role_id) {
     return interaction.reply({ content: 'La verifica non è configurata su questo server.', ephemeral: true });
   }
@@ -33,7 +33,7 @@ async function handleVerifyButton(interaction) {
     if (settings.quarantine_role_id) {
       await interaction.member.roles.remove(settings.quarantine_role_id).catch(() => {});
     }
-    addLog(interaction.guild.id, 'verification', interaction.user.id, null, 'Verifica completata');
+    await addLog(interaction.guild.id, 'verification', interaction.user.id, null, 'Verifica completata');
     await interaction.reply({ content: '✅ Verifica completata! Benvenuto/a.', ephemeral: true });
     await logToChannel(interaction.guild, settings, {
       title: '✅ Utente verificato',

@@ -30,13 +30,13 @@ function snapshotGuild(guild) {
 
 async function runBackup(guild) {
   const snapshot = snapshotGuild(guild);
-  saveBackup(guild.id, snapshot);
-  addLog(guild.id, 'backup', null, null, `Backup creato: ${snapshot.roles.length} ruoli, ${snapshot.channels.length} canali`);
+  await saveBackup(guild.id, snapshot);
+  await addLog(guild.id, 'backup', null, null, `Backup creato: ${snapshot.roles.length} ruoli, ${snapshot.channels.length} canali`);
   return snapshot;
 }
 
 async function restoreBackup(guild, backupId) {
-  const backup = getBackupById(backupId);
+  const backup = await getBackupById(backupId);
   if (!backup || backup.guild_id !== guild.id) throw new Error('Backup non trovato per questo server');
 
   const data = backup.data;
@@ -63,7 +63,7 @@ async function restoreBackup(guild, backupId) {
     restoredChannels++;
   }
 
-  addLog(guild.id, 'backup', null, null, `Ripristino da backup #${backupId}: +${restoredRoles} ruoli, +${restoredChannels} canali`);
+  await addLog(guild.id, 'backup', null, null, `Ripristino da backup #${backupId}: +${restoredRoles} ruoli, +${restoredChannels} canali`);
   return { restoredRoles, restoredChannels };
 }
 
@@ -72,7 +72,7 @@ function scheduleAutoBackups(client) {
   const INTERVAL_MS = 24 * 60 * 60 * 1000;
   setInterval(async () => {
     for (const guild of client.guilds.cache.values()) {
-      const settings = getGuildSettings(guild.id);
+      const settings = await getGuildSettings(guild.id);
       if (!settings.backup_enabled) continue;
       try {
         await runBackup(guild);

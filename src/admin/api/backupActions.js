@@ -22,8 +22,8 @@ router.post('/guilds/:guildId/backups', verifyGuildAccess, async (req, res) => {
       channels: channels.map(c => ({ name: c.name, type: c.type, topic: c.topic || null })),
     };
 
-    saveBackup(guildId, snapshot);
-    addLog(guildId, 'backup', null, req.session.user.id, `Backup creato dal pannello admin: ${snapshot.roles.length} ruoli, ${snapshot.channels.length} canali`);
+    await saveBackup(guildId, snapshot);
+    await addLog(guildId, 'backup', null, req.session.user.id, `Backup creato dal pannello admin: ${snapshot.roles.length} ruoli, ${snapshot.channels.length} canali`);
     res.json({ ok: true, roles: snapshot.roles.length, channels: snapshot.channels.length });
   } catch (err) {
     console.error('[api/backups] errore creazione:', err.message);
@@ -33,7 +33,7 @@ router.post('/guilds/:guildId/backups', verifyGuildAccess, async (req, res) => {
 
 router.post('/guilds/:guildId/backups/:backupId/restore', verifyGuildAccess, async (req, res) => {
   const guildId = req.params.guildId;
-  const backup = getBackupById(req.params.backupId);
+  const backup = await getBackupById(req.params.backupId);
   if (!backup || backup.guild_id !== guildId) return res.status(404).json({ error: 'Backup non trovato' });
 
   try {
@@ -54,7 +54,7 @@ router.post('/guilds/:guildId/backups/:backupId/restore', verifyGuildAccess, asy
       restoredChannels++;
     }
 
-    addLog(guildId, 'backup', null, req.session.user.id, `Ripristino da backup #${backup.id} dal pannello admin: +${restoredRoles} ruoli, +${restoredChannels} canali`);
+    await addLog(guildId, 'backup', null, req.session.user.id, `Ripristino da backup #${backup.id} dal pannello admin: +${restoredRoles} ruoli, +${restoredChannels} canali`);
     res.json({ ok: true, restoredRoles, restoredChannels });
   } catch (err) {
     console.error('[api/backups] errore ripristino:', err.message);

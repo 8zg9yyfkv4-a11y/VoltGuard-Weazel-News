@@ -24,20 +24,20 @@ async function execute(interaction) {
 
   if (sub === 'toggle') {
     const attivo = interaction.options.getBoolean('attivo');
-    updateGuildSettings(guildId, { antispam_enabled: attivo });
+    await updateGuildSettings(guildId, { antispam_enabled: attivo });
     return interaction.reply({ content: `✅ Anti-spam ${attivo ? 'attivato' : 'disattivato'}.`, ephemeral: true });
   }
 
   if (sub === 'soglia') {
     const messaggi = interaction.options.getInteger('messaggi');
     const secondi = interaction.options.getInteger('secondi');
-    updateGuildSettings(guildId, { antispam_msg_threshold: messaggi, antispam_window_sec: secondi });
+    await updateGuildSettings(guildId, { antispam_msg_threshold: messaggi, antispam_window_sec: secondi });
     return interaction.reply({ content: `✅ Soglia impostata: ${messaggi} messaggi in ${secondi}s.`, ephemeral: true });
   }
 
   if (sub === 'azione') {
     const tipo = interaction.options.getString('tipo');
-    updateGuildSettings(guildId, { antispam_action: tipo });
+    await updateGuildSettings(guildId, { antispam_action: tipo });
     return interaction.reply({ content: `✅ Azione anti-spam impostata su **${tipo}**.`, ephemeral: true });
   }
 }

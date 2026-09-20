@@ -23,45 +23,45 @@ async function execute(interaction) {
 
   if (sub === 'toggle') {
     const attivo = interaction.options.getBoolean('attivo');
-    updateGuildSettings(guildId, { automod_enabled: attivo });
+    await updateGuildSettings(guildId, { automod_enabled: attivo });
     return interaction.reply({ content: `✅ Auto-moderazione ${attivo ? 'attivata' : 'disattivata'}.`, ephemeral: true });
   }
 
   if (sub === 'blocca-invite') {
     const blocca = interaction.options.getBoolean('blocca');
-    updateGuildSettings(guildId, { automod_block_invites: blocca });
+    await updateGuildSettings(guildId, { automod_block_invites: blocca });
     return interaction.reply({ content: `✅ Link di invito: ${blocca ? 'bloccati' : 'consentiti'}.`, ephemeral: true });
   }
 
   if (sub === 'parola-aggiungi') {
     const parola = interaction.options.getString('parola').toLowerCase();
-    const settings = getGuildSettings(guildId);
+    const settings = await getGuildSettings(guildId);
     const updated = Array.from(new Set([...settings.automod_blocked_words, parola]));
-    updateGuildSettings(guildId, { automod_blocked_words: updated });
+    await updateGuildSettings(guildId, { automod_blocked_words: updated });
     return interaction.reply({ content: `✅ Parola aggiunta alla lista bloccata (${updated.length} totali).`, ephemeral: true });
   }
 
   if (sub === 'parola-rimuovi') {
     const parola = interaction.options.getString('parola').toLowerCase();
-    const settings = getGuildSettings(guildId);
+    const settings = await getGuildSettings(guildId);
     const updated = settings.automod_blocked_words.filter(w => w !== parola);
-    updateGuildSettings(guildId, { automod_blocked_words: updated });
+    await updateGuildSettings(guildId, { automod_blocked_words: updated });
     return interaction.reply({ content: `✅ Parola rimossa (${updated.length} rimanenti).`, ephemeral: true });
   }
 
   if (sub === 'parole-lista') {
-    const settings = getGuildSettings(guildId);
+    const settings = await getGuildSettings(guildId);
     const list = settings.automod_blocked_words.length ? settings.automod_blocked_words.join(', ') : 'nessuna';
     return interaction.reply({ content: `**Parole bloccate:** ${list}`, ephemeral: true });
   }
 
   if (sub === 'ia') {
     const attivo = interaction.options.getBoolean('attivo');
-    const settings = getGuildSettings(guildId);
+    const settings = await getGuildSettings(guildId);
     if (attivo && settings.plan === 'free') {
       return interaction.reply({ content: '⚠️ Il controllo IA è disponibile solo sui piani Pro ed Enterprise.', ephemeral: true });
     }
-    updateGuildSettings(guildId, { automod_use_ai: attivo });
+    await updateGuildSettings(guildId, { automod_use_ai: attivo });
     return interaction.reply({ content: `✅ Controllo IA ${attivo ? 'attivato' : 'disattivato'}.`, ephemeral: true });
   }
 }

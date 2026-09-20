@@ -22,7 +22,7 @@ async function execute(interaction) {
   }
 
   if (sub === 'lista') {
-    const backups = getBackups(guildId);
+    const backups = await getBackups(guildId);
     if (!backups.length) return interaction.reply({ content: 'Nessun backup disponibile ancora.', ephemeral: true });
     const list = backups.map(b => `**#${b.id}** — ${new Date(b.created_at * 1000).toLocaleString('it-IT')}`).join('\n');
     return interaction.reply({ content: list, ephemeral: true });

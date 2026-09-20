@@ -27,7 +27,7 @@ function countRecent(guildId, userId, windowSec) {
 async function handleMessage(message) {
   if (!message.guild || message.author.bot) return false;
 
-  const settings = getGuildSettings(message.guild.id);
+  const settings = await getGuildSettings(message.guild.id);
   if (!settings.antispam_enabled) return false;
 
   recordMessage(message.guild.id, message.author.id);
@@ -49,7 +49,7 @@ async function handleMessage(message) {
     console.error('[antiSpam] impossibile applicare azione:', err.message);
   }
 
-  addLog(message.guild.id, 'antispam', message.author.id, null, reason);
+  await addLog(message.guild.id, 'antispam', message.author.id, null, reason);
   await logToChannel(message.guild, settings, {
     title: '🚫 Anti-Spam attivato',
     color: 0xffb020,

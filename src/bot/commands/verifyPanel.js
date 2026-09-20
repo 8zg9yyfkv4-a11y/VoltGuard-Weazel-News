@@ -8,7 +8,7 @@ const data = new SlashCommandBuilder()
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
 
 async function execute(interaction) {
-  const settings = getGuildSettings(interaction.guild.id);
+  const settings = await getGuildSettings(interaction.guild.id);
   if (!settings.verified_role_id) {
     return interaction.reply({
       content: '⚠️ Devi prima impostare un ruolo verificato con `/voltguard-setup verified-role`.',

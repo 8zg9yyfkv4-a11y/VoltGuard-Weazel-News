@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { db } = require('../database');
+const { query } = require('../database');
 
 const data = new SlashCommandBuilder()
   .setName('stats')
@@ -7,12 +7,13 @@ const data = new SlashCommandBuilder()
 
 async function execute(interaction) {
   const guildId = interaction.guild.id;
-  const counts = db.prepare(`
-    SELECT type, COUNT(*) as n FROM mod_logs WHERE guild_id = ? GROUP BY type
-  `).all(guildId);
+  const counts = await query(
+    `SELECT type, COUNT(*) as n FROM mod_logs WHERE guild_id = $1 GROUP BY type`,
+    [guildId]
+  );
 
-  const byType = Object.fromEntries(counts.map(c => [c.type, c.n]));
-  const total = counts.reduce((acc, c) => acc + c.n, 0);
+  const byType = Object.fromEntries(counts.map(c => [c.type, Number(c.n)]));
+  const total = counts.reduce((acc, c) => acc + Number(c.n), 0);
 
   const embed = new EmbedBuilder()
     .setTitle(`🛡️ Statistiche Voltguard — ${interaction.guild.name}`)

@@ -37,7 +37,7 @@ async function checkAI(content) {
 async function handleMessage(message) {
   if (!message.guild || message.author.bot) return false;
 
-  const settings = getGuildSettings(message.guild.id);
+  const settings = await getGuildSettings(message.guild.id);
   if (!settings.automod_enabled) return false;
 
   // i ruoli protetti sono esenti dall'automod (es. staff/moderatori)
@@ -66,7 +66,7 @@ async function handleMessage(message) {
     console.error('[automod] impossibile eliminare il messaggio:', err.message);
   }
 
-  addLog(message.guild.id, 'automod', message.author.id, null, violation);
+  await addLog(message.guild.id, 'automod', message.author.id, null, violation);
   await logToChannel(message.guild, settings, {
     title: '🤖 Auto-Moderazione',
     color: 0x2f6bff,

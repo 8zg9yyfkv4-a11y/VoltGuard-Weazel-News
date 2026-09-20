@@ -5,8 +5,8 @@ const { verifyGuildAccess } = require('../middleware');
 
 const router = express.Router();
 
-router.get('/guilds/:guildId/settings', verifyGuildAccess, (req, res) => {
-  res.json(getGuildSettings(req.params.guildId));
+router.get('/guilds/:guildId/settings', verifyGuildAccess, async (req, res) => {
+  res.json(await getGuildSettings(req.params.guildId));
 });
 
 const EDITABLE_FIELDS = [
@@ -17,12 +17,12 @@ const EDITABLE_FIELDS = [
   'automod_block_invites', 'automod_use_ai', 'verification_enabled', 'backup_enabled',
 ];
 
-router.patch('/guilds/:guildId/settings', verifyGuildAccess, (req, res) => {
+router.patch('/guilds/:guildId/settings', verifyGuildAccess, async (req, res) => {
   const patch = {};
   for (const key of EDITABLE_FIELDS) {
     if (key in req.body) patch[key] = req.body[key];
   }
-  const updated = updateGuildSettings(req.params.guildId, patch);
+  const updated = await updateGuildSettings(req.params.guildId, patch);
   res.json(updated);
 });
 

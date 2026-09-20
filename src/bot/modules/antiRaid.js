@@ -24,7 +24,7 @@ function countRecentJoins(guildId, windowSec) {
 }
 
 async function handleGuildMemberAdd(member) {
-  const settings = getGuildSettings(member.guild.id);
+  const settings = await getGuildSettings(member.guild.id);
   if (!settings.antiraid_enabled) return;
 
   recordJoin(member.guild.id);
@@ -59,7 +59,7 @@ async function applyAction(member, settings, reason) {
     console.error('[antiRaid] impossibile applicare azione:', err.message);
   }
 
-  addLog(member.guild.id, 'antiraid', member.id, null, reason);
+  await addLog(member.guild.id, 'antiraid', member.id, null, reason);
   await logToChannel(member.guild, settings, {
     title: '🛡️ Anti-Raid attivato',
     color: 0xff5d6c,
