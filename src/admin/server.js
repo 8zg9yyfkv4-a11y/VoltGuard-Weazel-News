@@ -87,5 +87,5 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.ADMIN_PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ Pannello admin Voltguard online su ${process.env.ADMIN_BASE_URL || `http://localhost:${PORT}`}`);
+  console.log(`✅ Pannello admin Voltguard online su ${process.env.ADMIN_BASE_URL || `https://voltguard-weazel-news.onrender.com/`}`);
 });
