@@ -4,21 +4,27 @@ async function loadMe() {
   const user = await res.json();
   document.getElementById('username').textContent = user.username;
 }
-
+ 
 function initials(name) {
   return name.slice(0, 2).toUpperCase();
 }
-
+ 
 async function loadGuilds() {
   const res = await fetch('/api/guilds');
   const guilds = await res.json();
   const grid = document.getElementById('guildGrid');
-
+ 
   if (!guilds.length) {
-    grid.innerHTML = '<p class="muted">Non gestisci nessun server su Discord (serve il permesso "Gestisci server").</p>';
+    grid.innerHTML = '<p class="muted">Voltguard non è presente in nessun server che gestisci (serve il permesso "Gestisci server").</p>';
     return;
   }
-
+ 
+  // Voltguard vive in un solo server: si passa direttamente alla sua pagina di gestione
+  if (guilds.length === 1) {
+    location.href = `guild.html?id=${guilds[0].id}`;
+    return;
+  }
+ 
   grid.innerHTML = guilds.map(g => `
     <a class="guild-card" href="${g.botPresent ? `guild.html?id=${g.id}` : '#'}"
        ${!g.botPresent ? 'onclick="return inviteFirst(event)"' : ''}>
@@ -30,17 +36,18 @@ async function loadGuilds() {
     </a>
   `).join('');
 }
-
+ 
 function inviteFirst(e) {
   e.preventDefault();
   alert('Voltguard non è ancora in questo server. Aggiungilo prima dal sito, poi torna qui.');
   return false;
 }
-
+ 
 document.getElementById('logoutBtn').addEventListener('click', async () => {
   await fetch('/auth/logout', { method: 'POST' });
   location.href = '/login.html';
 });
-
+ 
 loadMe();
 loadGuilds();
+ 
