@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const { updateGuildSettings, getGuildSettings } = require('../database');
+const { getPlan } = require('../planLimits');
 
 const data = new SlashCommandBuilder()
   .setName('voltguard-setup')
@@ -48,6 +49,13 @@ async function execute(interaction) {
   if (sub === 'protected-role') {
     const role = interaction.options.getRole('ruolo');
     const settings = await getGuildSettings(guildId);
+    const plan = getPlan(settings.plan);
+    if (!settings.protected_role_ids.includes(role.id) && settings.protected_role_ids.length >= plan.maxProtectedRoles) {
+      return interaction.reply({
+        content: `⚠️ Hai raggiunto il limite di ${plan.maxProtectedRoles} ruoli protetti del piano ${plan.label}. Passa a un piano superiore per proteggerne altri (vedi \`/piano-info\`).`,
+        ephemeral: true,
+      });
+    }
     const updated = Array.from(new Set([...settings.protected_role_ids, role.id]));
     await updateGuildSettings(guildId, { protected_role_ids: updated });
     return interaction.reply({ content: `✅ ${role} è ora esente dall'auto-moderazione.`, ephemeral: true });
@@ -55,8 +63,9 @@ async function execute(interaction) {
 
   if (sub === 'status') {
     const s = await getGuildSettings(guildId);
+    const plan = getPlan(s.plan);
     const lines = [
-      `**Piano:** ${s.plan}`,
+      `**Piano:** ${plan.label} — usa \`/piano-info\` per il dettaglio delle funzioni incluse`,
       `**Log:** ${s.log_channel_id ? `<#${s.log_channel_id}>` : 'non impostato'}`,
       `**Verifica:** ${s.verification_enabled ? 'attiva' : 'disattiva'} — ruolo: ${s.verified_role_id ? `<@&${s.verified_role_id}>` : '—'}`,
       `**Quarantena:** ruolo ${s.quarantine_role_id ? `<@&${s.quarantine_role_id}>` : '—'}`,

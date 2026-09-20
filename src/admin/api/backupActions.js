@@ -1,6 +1,7 @@
 // api/backupActions.js
 const express = require('express');
-const { saveBackup, getBackupById, addLog } = require('../../bot/database');
+const { saveBackup, getBackupById, addLog, getGuildSettings } = require('../../bot/database');
+const { getPlan } = require('../../bot/planLimits');
 const { verifyGuildAccess } = require('../middleware');
 const discordRest = require('../discordRest');
 
@@ -9,6 +10,8 @@ const router = express.Router();
 router.post('/guilds/:guildId/backups', verifyGuildAccess, async (req, res) => {
   const guildId = req.params.guildId;
   try {
+    const settings = await getGuildSettings(guildId);
+    const plan = getPlan(settings.plan);
     const guild = await discordRest.getGuild(guildId);
     const roles = await discordRest.getRoles(guildId);
     const channels = await discordRest.getChannels(guildId);
@@ -22,7 +25,7 @@ router.post('/guilds/:guildId/backups', verifyGuildAccess, async (req, res) => {
       channels: channels.map(c => ({ name: c.name, type: c.type, topic: c.topic || null })),
     };
 
-    await saveBackup(guildId, snapshot);
+    await saveBackup(guildId, snapshot, plan.maxBackups);
     await addLog(guildId, 'backup', null, req.session.user.id, `Backup creato dal pannello admin: ${snapshot.roles.length} ruoli, ${snapshot.channels.length} canali`);
     res.json({ ok: true, roles: snapshot.roles.length, channels: snapshot.channels.length });
   } catch (err) {

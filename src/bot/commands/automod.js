@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const { updateGuildSettings, getGuildSettings } = require('../database');
+const { getPlan, primoPianoCon } = require('../planLimits');
 
 const data = new SlashCommandBuilder()
   .setName('automod')
@@ -36,9 +37,16 @@ async function execute(interaction) {
   if (sub === 'parola-aggiungi') {
     const parola = interaction.options.getString('parola').toLowerCase();
     const settings = await getGuildSettings(guildId);
+    const plan = getPlan(settings.plan);
+    if (!settings.automod_blocked_words.includes(parola) && settings.automod_blocked_words.length >= plan.maxBlockedWords) {
+      return interaction.reply({
+        content: `⚠️ Hai raggiunto il limite di ${plan.maxBlockedWords} parole bloccate del piano ${plan.label}. Passa a un piano superiore per aggiungerne altre (vedi \`/piano-info\`).`,
+        ephemeral: true,
+      });
+    }
     const updated = Array.from(new Set([...settings.automod_blocked_words, parola]));
     await updateGuildSettings(guildId, { automod_blocked_words: updated });
-    return interaction.reply({ content: `✅ Parola aggiunta alla lista bloccata (${updated.length} totali).`, ephemeral: true });
+    return interaction.reply({ content: `✅ Parola aggiunta alla lista bloccata (${updated.length}/${plan.maxBlockedWords === Infinity ? '∞' : plan.maxBlockedWords} totali).`, ephemeral: true });
   }
 
   if (sub === 'parola-rimuovi') {
@@ -58,8 +66,9 @@ async function execute(interaction) {
   if (sub === 'ia') {
     const attivo = interaction.options.getBoolean('attivo');
     const settings = await getGuildSettings(guildId);
-    if (attivo && settings.plan === 'free') {
-      return interaction.reply({ content: '⚠️ Il controllo IA è disponibile solo sui piani Pro ed Enterprise.', ephemeral: true });
+    const plan = getPlan(settings.plan);
+    if (attivo && !plan.automodAI) {
+      return interaction.reply({ content: `⚠️ Il controllo IA richiede almeno il piano ${getPlan(primoPianoCon('automodAI')).label}. Vedi \`/piano-info\` per i dettagli.`, ephemeral: true });
     }
     await updateGuildSettings(guildId, { automod_use_ai: attivo });
     return interaction.reply({ content: `✅ Controllo IA ${attivo ? 'attivato' : 'disattivato'}.`, ephemeral: true });

@@ -164,13 +164,13 @@ async function getLogs(guildId, limit = 100) {
   return query('SELECT * FROM mod_logs WHERE guild_id = $1 ORDER BY id DESC LIMIT $2', [guildId, limit]);
 }
 
-async function saveBackup(guildId, dataObj) {
+async function saveBackup(guildId, dataObj, maxBackups = 10) {
   await dbReady;
   await pool.query('INSERT INTO backups (guild_id, data) VALUES ($1, $2)', [guildId, JSON.stringify(dataObj)]);
-  // tiene solo le ultime 10 per server per non far crescere il db all'infinito
+  // tiene solo gli ultimi N per server (limite dato dal piano) per non far crescere il db all'infinito
   const ids = (await query('SELECT id FROM backups WHERE guild_id = $1 ORDER BY id DESC', [guildId])).map(r => r.id);
-  if (ids.length > 10) {
-    const toDelete = ids.slice(10);
+  if (maxBackups !== Infinity && ids.length > maxBackups) {
+    const toDelete = ids.slice(maxBackups);
     await pool.query('DELETE FROM backups WHERE id = ANY($1::int[])', [toDelete]);
   }
 }

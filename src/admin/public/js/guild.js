@@ -1,5 +1,6 @@
 const guildId = new URLSearchParams(location.search).get('id');
 let currentSettings = null;
+let planInfo = null; // { current, order, plans, features } da /api/guilds/:id/plan
 
 async function loadMe() {
   const res = await fetch('/api/me');
@@ -56,6 +57,11 @@ function addWord() {
   const input = document.getElementById('newWord');
   const word = input.value.trim().toLowerCase();
   if (!word) return;
+  const max = planInfo ? planInfo.plans[planInfo.current].maxBlockedWords : Infinity;
+  if (!currentSettings.automod_blocked_words.includes(word) && currentSettings.automod_blocked_words.length >= max) {
+    alert(`⚠️ Hai raggiunto il limite di ${max} parole bloccate del tuo piano. Guarda la scheda "Piano" per i dettagli.`);
+    return;
+  }
   if (!currentSettings.automod_blocked_words.includes(word)) {
     currentSettings.automod_blocked_words.push(word);
     renderWords(currentSettings.automod_blocked_words);
@@ -66,6 +72,53 @@ function addWord() {
 function removeWord(word) {
   currentSettings.automod_blocked_words = currentSettings.automod_blocked_words.filter(w => w !== word);
   renderWords(currentSettings.automod_blocked_words);
+}
+
+// --- Piano: blocchi coerenti sulle funzioni non incluse + tabella comparativa ---
+function applyPlanLocks() {
+  if (!planInfo) return;
+  const plan = planInfo.plans[planInfo.current];
+
+  const iaCheckbox = document.getElementById('automod_use_ai');
+  const iaLock = document.getElementById('ia-lock');
+  iaCheckbox.disabled = !plan.automodAI;
+  iaLock.style.display = plan.automodAI ? 'none' : 'inline';
+  if (!plan.automodAI) iaCheckbox.checked = false;
+
+  const backupCheckbox = document.getElementById('backup_enabled');
+  const backupLock = document.getElementById('backup-lock');
+  backupCheckbox.disabled = !plan.autoBackupDaily;
+  backupLock.style.display = plan.autoBackupDaily ? 'none' : 'inline';
+  if (!plan.autoBackupDaily) backupCheckbox.checked = false;
+}
+
+function renderPlanTable() {
+  if (!planInfo) return;
+  const { order, plans, features, current } = planInfo;
+
+  document.getElementById('planCurrent').innerHTML =
+    `<h3>Piano attuale: <span class="badge on">${plans[current].label}</span></h3>
+     <p class="muted">Confronto delle funzioni incluse in ciascun piano. Per cambiare piano contatta chi gestisce il servizio.</p>`;
+
+  document.getElementById('planTableHead').innerHTML =
+    `<th>Funzione</th>` + order.map(p => `<th>${plans[p].label}${p === current ? ' (attuale)' : ''}</th>`).join('');
+
+  document.getElementById('planTableBody').innerHTML = features.map(f => {
+    const celle = order.map(p => {
+      const v = plans[p][f.key];
+      const testo = f.kind === 'bool' ? (v ? '✅' : '❌') : (v === Infinity ? 'Illimitati' : v);
+      return `<td>${testo}</td>`;
+    }).join('');
+    return `<tr><td>${f.label}</td>${celle}</tr>`;
+  }).join('');
+}
+
+async function loadPlan() {
+  const res = await fetch(`/api/guilds/${guildId}/plan`);
+  if (!res.ok) return;
+  planInfo = await res.json();
+  applyPlanLocks();
+  renderPlanTable();
 }
 
 async function saveSettings() {
@@ -97,9 +150,11 @@ async function saveSettings() {
   });
   if (res.ok) {
     fillForm(await res.json());
+    applyPlanLocks();
     alert('✅ Impostazioni salvate.');
   } else {
-    alert('❌ Errore nel salvataggio.');
+    const data = await res.json().catch(() => ({}));
+    alert(`❌ ${data.error || 'Errore nel salvataggio.'}`);
   }
 }
 
@@ -167,6 +222,10 @@ async function init() {
   const settings = await res.json();
   document.getElementById('guildTitle').textContent = `Gestione server · piano ${settings.plan}`;
   fillForm(settings);
+  await loadPlan();
+  if (planInfo) {
+    document.getElementById('guildTitle').textContent = `Gestione server · piano ${planInfo.plans[planInfo.current].label}`;
+  }
   loadStats();
   loadLogs();
   loadBackups();

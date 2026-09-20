@@ -4,6 +4,7 @@
 // ma permette di ripristinare rapidamente la struttura del server dopo un raid distruttivo.
 
 const { getGuildSettings, saveBackup, getBackupById, addLog } = require('../database');
+const { getPlan } = require('../planLimits');
 
 function snapshotGuild(guild) {
   const roles = guild.roles.cache
@@ -29,8 +30,10 @@ function snapshotGuild(guild) {
 }
 
 async function runBackup(guild) {
+  const settings = await getGuildSettings(guild.id);
+  const plan = getPlan(settings.plan);
   const snapshot = snapshotGuild(guild);
-  await saveBackup(guild.id, snapshot);
+  await saveBackup(guild.id, snapshot, plan.maxBackups);
   await addLog(guild.id, 'backup', null, null, `Backup creato: ${snapshot.roles.length} ruoli, ${snapshot.channels.length} canali`);
   return snapshot;
 }
@@ -67,13 +70,16 @@ async function restoreBackup(guild, backupId) {
   return { restoredRoles, restoredChannels };
 }
 
-// Backup automatico ogni 24 ore per i server con backup_enabled attivo.
+// Backup automatico ogni 24 ore per i server con backup_enabled attivo E il cui piano
+// include il backup automatico giornaliero (Pro/Enterprise). Sul piano Free il backup
+// resta disponibile solo su richiesta manuale (pulsante "Crea backup ora" / comando).
 function scheduleAutoBackups(client) {
   const INTERVAL_MS = 24 * 60 * 60 * 1000;
   setInterval(async () => {
     for (const guild of client.guilds.cache.values()) {
       const settings = await getGuildSettings(guild.id);
       if (!settings.backup_enabled) continue;
+      if (!getPlan(settings.plan).autoBackupDaily) continue;
       try {
         await runBackup(guild);
       } catch (err) {

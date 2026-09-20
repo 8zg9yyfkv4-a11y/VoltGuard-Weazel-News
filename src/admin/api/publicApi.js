@@ -5,6 +5,7 @@
 
 const express = require('express');
 const { query, one, getGuildSettings, updateGuildSettings } = require('../../bot/database');
+const { getPlan } = require('../../bot/planLimits');
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ async function requireApiKey(req, res, next) {
 
   const row = await one('SELECT guild_id, plan FROM guild_settings WHERE api_key = $1', [key]);
   if (!row) return res.status(401).json({ error: 'API key non valida' });
-  if (row.plan !== 'enterprise') return res.status(403).json({ error: 'API disponibile solo sul piano Enterprise' });
+  if (!getPlan(row.plan).apiAccess) return res.status(403).json({ error: 'API non disponibile su questo piano' });
 
   req.guildId = row.guild_id;
   next();

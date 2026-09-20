@@ -30,6 +30,7 @@
       <div class="tab" data-tab="backups">Backup</div>
       <div class="tab" data-tab="logs">Log</div>
       <div class="tab" data-tab="api">API</div>
+      <div class="tab" data-tab="piano">Piano</div>
     </div>
 
     <!-- ANTI-RAID -->
@@ -103,7 +104,7 @@
         <label class="switch"><input type="checkbox" id="automod_block_invites"><span class="slider"></span></label>
       </div>
       <div class="toggle-row">
-        <span>Controllo IA aggiuntivo (Pro/Enterprise)</span>
+        <span>Controllo IA aggiuntivo (Pro/Enterprise) <span id="ia-lock" class="badge off" style="display:none;margin-left:6px">🔒 richiede upgrade</span></span>
         <label class="switch"><input type="checkbox" id="automod_use_ai"><span class="slider"></span></label>
       </div>
 
@@ -133,7 +134,7 @@
     <!-- BACKUP -->
     <div class="tab-panel card" id="panel-backups">
       <div class="toggle-row">
-        <span>Backup automatico giornaliero</span>
+        <span>Backup automatico giornaliero <span id="backup-lock" class="badge off" style="display:none;margin-left:6px">🔒 richiede upgrade</span></span>
         <label class="switch"><input type="checkbox" id="backup_enabled"><span class="slider"></span></label>
       </div>
       <button class="btn btn-primary mt" onclick="createBackup()">Crea backup ora</button>
@@ -158,6 +159,16 @@
 POST   /api/v1/rules      { "rule_type": "blocked_word", "value": "esempio" }
 DELETE /api/v1/rules/:id
 GET    /api/v1/settings</pre>
+    </div>
+
+    <!-- PIANO -->
+    <div class="tab-panel card" id="panel-piano">
+      <div id="planCurrent" class="mt"></div>
+      <table class="mt" id="planTable">
+        <thead><tr id="planTableHead"></tr></thead>
+        <tbody id="planTableBody"></tbody>
+      </table>
+      <p class="muted mt">Per cambiare piano contatta chi gestisce il servizio.</p>
     </div>
   </div>
 

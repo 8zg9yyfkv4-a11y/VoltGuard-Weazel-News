@@ -6,8 +6,7 @@
 
 const { SlashCommandBuilder } = require('discord.js');
 const { getGuildSettings, updateGuildSettings } = require('../database');
-
-const PIANI_VALIDI = ['free', 'pro', 'enterprise'];
+const { PLAN_ORDER, getPlan } = require('../planLimits');
 
 const data = new SlashCommandBuilder()
   .setName('piano')
@@ -44,15 +43,15 @@ async function execute(interaction) {
   if (!guildId) {
     return interaction.reply({ content: '⚠️ Specifica un `server_id` (qui non siamo dentro un server).', ephemeral: true });
   }
-  if (!PIANI_VALIDI.includes(nuovoPiano)) {
-    return interaction.reply({ content: `⚠️ Piano non valido. Valori ammessi: ${PIANI_VALIDI.join(', ')}.`, ephemeral: true });
+  if (!PLAN_ORDER.includes(nuovoPiano)) {
+    return interaction.reply({ content: `⚠️ Piano non valido. Valori ammessi: ${PLAN_ORDER.join(', ')}.`, ephemeral: true });
   }
 
   const prima = await getGuildSettings(guildId);
   await updateGuildSettings(guildId, { plan: nuovoPiano });
 
   return interaction.reply({
-    content: `✅ Piano del server \`${guildId}\` aggiornato: **${prima.plan}** → **${nuovoPiano}**.`,
+    content: `✅ Piano del server \`${guildId}\` aggiornato: **${getPlan(prima.plan).label}** → **${getPlan(nuovoPiano).label}**.`,
     ephemeral: true,
   });
 }

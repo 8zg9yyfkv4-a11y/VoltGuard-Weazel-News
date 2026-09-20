@@ -13,6 +13,7 @@ const settingsRouter = require('./api/settings');
 const logsRouter = require('./api/logsAndBackups');
 const backupActionsRouter = require('./api/backupActions');
 const publicApiRouter = require('./api/publicApi');
+const planRouter = require('./api/plan');
 
 const app = express();
 app.use(express.json());
@@ -58,6 +59,7 @@ app.use('/api', guildsRouter);
 app.use('/api', settingsRouter);
 app.use('/api', logsRouter);
 app.use('/api', backupActionsRouter);
+app.use('/api', planRouter);
 
 // ============ API PUBBLICA (piano Enterprise, richiede X-API-Key) ============
 app.use('/api', publicApiRouter);
