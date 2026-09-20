@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestisci server — Voltguard Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <div class="topbar">
+    <a class="brand" href="dashboard.html" style="text-decoration:none"><span class="brand-dot"></span> VOLTGUARD ADMIN</a>
+    <div class="userchip">
+      <span id="username">...</span>
+      <button class="btn btn-sm" id="logoutBtn">Esci</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <a href="dashboard.html" class="muted" style="text-decoration:none;font-size:13px">&larr; Tutti i server</a>
+    <h1 id="guildTitle" class="mt">Caricamento...</h1>
+
+    <div class="stat-tiles" id="statTiles"></div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="antiraid">Anti-Raid</div>
+      <div class="tab" data-tab="antispam">Anti-Spam</div>
+      <div class="tab" data-tab="automod">Auto-Moderazione</div>
+      <div class="tab" data-tab="verification">Verifica</div>
+      <div class="tab" data-tab="backups">Backup</div>
+      <div class="tab" data-tab="logs">Log</div>
+      <div class="tab" data-tab="api">API</div>
+    </div>
+
+    <!-- ANTI-RAID -->
+    <div class="tab-panel active card" id="panel-antiraid">
+      <div class="toggle-row">
+        <span>Anti-Raid attivo</span>
+        <label class="switch"><input type="checkbox" id="antiraid_enabled"><span class="slider"></span></label>
+      </div>
+      <div class="field-row mt">
+        <div class="field">
+          <label>Join sospetti per attivare l'allarme</label>
+          <input type="number" id="antiraid_join_threshold" min="2" max="100">
+        </div>
+        <div class="field">
+          <label>Finestra di tempo (secondi)</label>
+          <input type="number" id="antiraid_join_window_sec" min="2" max="300">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Età minima account (ore)</label>
+          <input type="number" id="antiraid_min_account_age_hours" min="0" max="720">
+        </div>
+        <div class="field">
+          <label>Azione</label>
+          <select id="antiraid_action">
+            <option value="quarantine">Quarantena</option>
+            <option value="kick">Kick</option>
+            <option value="ban">Ban</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveSettings()">Salva modifiche</button>
+    </div>
+
+    <!-- ANTI-SPAM -->
+    <div class="tab-panel card" id="panel-antispam">
+      <div class="toggle-row">
+        <span>Anti-Spam attivo</span>
+        <label class="switch"><input type="checkbox" id="antispam_enabled"><span class="slider"></span></label>
+      </div>
+      <div class="field-row mt">
+        <div class="field">
+          <label>Messaggi sospetti per attivare l'allarme</label>
+          <input type="number" id="antispam_msg_threshold" min="2" max="50">
+        </div>
+        <div class="field">
+          <label>Finestra di tempo (secondi)</label>
+          <input type="number" id="antispam_window_sec" min="1" max="120">
+        </div>
+      </div>
+      <div class="field">
+        <label>Azione</label>
+        <select id="antispam_action">
+          <option value="delete">Elimina solo il messaggio</option>
+          <option value="timeout">Timeout 10 minuti</option>
+          <option value="kick">Kick</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="saveSettings()">Salva modifiche</button>
+    </div>
+
+    <!-- AUTOMOD -->
+    <div class="tab-panel card" id="panel-automod">
+      <div class="toggle-row">
+        <span>Auto-moderazione attiva</span>
+        <label class="switch"><input type="checkbox" id="automod_enabled"><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span>Blocca link di invito Discord</span>
+        <label class="switch"><input type="checkbox" id="automod_block_invites"><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span>Controllo IA aggiuntivo (Pro/Enterprise)</span>
+        <label class="switch"><input type="checkbox" id="automod_use_ai"><span class="slider"></span></label>
+      </div>
+
+      <div class="field mt">
+        <label>Parole bloccate</label>
+        <div class="words-list" id="wordsList"></div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="newWord" placeholder="Aggiungi una parola...">
+          <button class="btn btn-sm" onclick="addWord()">Aggiungi</button>
+        </div>
+      </div>
+      <button class="btn btn-primary mt" onclick="saveSettings()">Salva modifiche</button>
+    </div>
+
+    <!-- VERIFICA -->
+    <div class="tab-panel card" id="panel-verification">
+      <div class="toggle-row">
+        <span>Verifica utenti attiva</span>
+        <label class="switch"><input type="checkbox" id="verification_enabled"><span class="slider"></span></label>
+      </div>
+      <p class="muted mt">Configura il canale e i ruoli di verifica dal server con i comandi
+        <code>/voltguard-setup verification-channel</code> e <code>/voltguard-setup verified-role</code>,
+        poi pubblica il pannello con <code>/verify-panel</code>.</p>
+      <button class="btn btn-primary mt" onclick="saveSettings()">Salva modifiche</button>
+    </div>
+
+    <!-- BACKUP -->
+    <div class="tab-panel card" id="panel-backups">
+      <div class="toggle-row">
+        <span>Backup automatico giornaliero</span>
+        <label class="switch"><input type="checkbox" id="backup_enabled"><span class="slider"></span></label>
+      </div>
+      <button class="btn btn-primary mt" onclick="createBackup()">Crea backup ora</button>
+      <table class="mt" id="backupsTable">
+        <thead><tr><th>ID</th><th>Data</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- LOG -->
+    <div class="tab-panel card" id="panel-logs">
+      <table>
+        <thead><tr><th>Data</th><th>Tipo</th><th>Utente</th><th>Dettaglio</th></tr></thead>
+        <tbody id="logsBody"></tbody>
+      </table>
+    </div>
+
+    <!-- API -->
+    <div class="tab-panel card" id="panel-api">
+      <p class="muted">Disponibile sul piano <strong>Enterprise</strong>. Genera una chiave con <code>/apikey</code> nel bot, poi usala nell'header <code>X-API-Key</code>.</p>
+      <pre class="code-block mt">GET    /api/v1/rules
+POST   /api/v1/rules      { "rule_type": "blocked_word", "value": "esempio" }
+DELETE /api/v1/rules/:id
+GET    /api/v1/settings</pre>
+    </div>
+  </div>
+
+  <script src="js/guild.js"></script>
+</body>
+</html>

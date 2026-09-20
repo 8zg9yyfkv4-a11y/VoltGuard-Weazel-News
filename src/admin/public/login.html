@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accedi — Voltguard Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/dashboard.css">
+<style>
+  body{ display:flex; align-items:center; justify-content:center; }
+  .login-card{ width:100%; max-width:380px; text-align:center; }
+  .logo{ width:56px; height:56px; margin:0 auto 18px; }
+  p.sub{ color:var(--muted); margin-bottom:26px; }
+  .btn-discord{ width:100%; justify-content:center; padding:14px; font-size:15px; }
+  #err{ color:var(--danger); font-size:13px; margin-top:14px; display:none; }
+</style>
+</head>
+<body>
+  <div class="card login-card">
+    <svg class="logo" viewBox="0 0 48 48"><path d="M24 3 L42 11 V23 C42 34 34.5 41.5 24 45 C13.5 41.5 6 34 6 23 V11 Z" fill="none" stroke="#4cc9f0" stroke-width="2.5"/><path d="M24 13 L24 27 M17 20 L31 20" stroke="#4cc9f0" stroke-width="2.5" stroke-linecap="round"/></svg>
+    <h1>Pannello Admin</h1>
+    <p class="sub">Accedi con Discord per gestire Voltguard sui tuoi server.</p>
+    <a href="/auth/login" class="btn btn-primary btn-discord">Accedi con Discord</a>
+    <div id="err">Accesso non riuscito, riprova.</div>
+  </div>
+  <script>
+    if (new URLSearchParams(location.search).get('error')) {
+      document.getElementById('err').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "voltguard-bot",
+  "version": "1.0.0",
+  "description": "Voltguard - bot di sicurezza per Discord (anti-raid, anti-spam, automod, verifica, backup) + pannello admin",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/bot/index.js",
+    "start:admin": "node src/admin/server.js",
+    "start:all": "concurrently -n BOT,ADMIN -c blue,cyan \"node src/bot/index.js\" \"node src/admin/server.js\"",
+    "deploy-commands": "node src/bot/deploy-commands.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-session": "^1.18.0",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}

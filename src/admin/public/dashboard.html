@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I tuoi server — Voltguard Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand"><span class="brand-dot"></span> VOLTGUARD ADMIN</div>
+    <div class="userchip">
+      <span id="username">...</span>
+      <button class="btn btn-sm" id="logoutBtn">Esci</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>I tuoi server</h1>
+    <p class="muted">Seleziona un server per gestire anti-raid, anti-spam, auto-moderazione, verifica e backup.</p>
+
+    <div class="grid guild-grid mt" id="guildGrid">
+      <p class="muted">Caricamento server...</p>
+    </div>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
